@@ -1,25 +1,28 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * @author ares
  */
 @Entity
 @Table(name = "t_user")
+@GenericGenerator(name = "jpa-uuid", strategy = "uuid")
 @Setter
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
     @Column(name = "username")
     private String username;
@@ -37,25 +40,34 @@ public class User {
     private String no;
 
     @Column(name = "phone")
-    private Integer phone;
+    private String phone;
 
     @Column(name = "gender")
     private byte gender;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, targetEntity = Role.class)
     @JoinColumn(name = "role_id")
     private Role role;
 
+    @ManyToMany(cascade = CascadeType.REFRESH, mappedBy = "students")
+    private Set<Course> courses;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "teacher", fetch = FetchType.EAGER)
+    private Set<Course> courseList;
+
     @Column(name = "create_by")
-    private String createBy;
+    private Long createBy;
 
     @Column(name = "update_by")
-    private String updateBy;
+    private Long updateBy;
 
     @Column(name = "create_time")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     @Column(name = "update_time")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     @Column(name = "is_del")

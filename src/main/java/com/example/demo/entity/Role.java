@@ -1,35 +1,40 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author ares
  */
 @Entity
 @Table(name = "t_role")
+@GenericGenerator(name = "jpa-uuid", strategy = "uuid")
 @Setter
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
 public class Role {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
     @Column(name = "role_name")
     private String roleName;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "role", fetch = FetchType.EAGER)
+    private Set<User> users;
+
     @Column(name = "create_by")
-    private String createBy;
+    private Long createBy;
 
     @Column(name = "update_by")
-    private String updateBy;
+    private Long updateBy;
 
     @Column(name = "create_time")
     private Date createTime;

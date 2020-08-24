@@ -41,7 +41,7 @@ public interface UserService {
      * @param id
      * @return
      */
-    User getUser(Integer id);
+    User getUser(Long id);
 
     /**
      * 删除用户
@@ -49,7 +49,7 @@ public interface UserService {
      * @param id
      * @return
      */
-    User delUser(Integer id);
+    User delUser(Long id);
 
     /**
      * 获取用户列表
@@ -60,6 +60,6 @@ public interface UserService {
      * @param roleId
      * @return
      */
-    Page<User> getUsers(Integer pageNo, Integer pageSize, String condition, Integer roleId);
+    Page<User> getUsers(Integer pageNo, Integer pageSize, String condition, Long roleId);
 
 }

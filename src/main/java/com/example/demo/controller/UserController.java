@@ -45,8 +45,8 @@ public class UserController {
     }
 
     @PostMapping("delUser")
-    public ApiResponse delUser(Integer userId) {
-        if (null == userId || "".equals(userId)) {
+    public ApiResponse delUser(Long userId) {
+        if (null == userId) {
             throw new BizException(BizEnum.INVALID_PARAM);
         }
         userService.delUser(userId);
@@ -54,8 +54,8 @@ public class UserController {
     }
 
     @GetMapping("/getUser")
-    public ApiResponse getUser(Integer userId) {
-        if (null == userId || "".equals(userId)) {
+    public ApiResponse getUser(Long userId) {
+        if (null == userId) {
             throw new BizException(BizEnum.INVALID_PARAM);
         }
         return ApiResponse.ofSuccess(userService.getUser(userId));
@@ -65,7 +65,7 @@ public class UserController {
     public ApiResponse getUsers(@RequestParam(defaultValue = "1") Integer pageNo,
                                 @RequestParam(defaultValue = "10") Integer pageSize,
                                 @RequestParam String condition,
-                                @RequestParam Integer roleId) {
+                                @RequestParam Long roleId) {
         return ApiResponse.ofSuccess(userService.getUsers(pageNo, pageSize, condition, roleId));
     }
 

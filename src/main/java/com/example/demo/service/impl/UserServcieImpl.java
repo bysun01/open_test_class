@@ -1,8 +1,10 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.common.BizEnum;
+import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
 import com.example.demo.exception.BizException;
+import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.CacheService;
 import com.example.demo.service.UserService;
@@ -35,11 +37,13 @@ public class UserServcieImpl implements UserService {
 
     private UserRepository userRepository;
     private CacheService cacheService;
+    private RoleRepository roleRepository;
 
     @Autowired
-    public void getRepository(UserRepository userRepository, CacheService cacheService) {
+    public void getRepository(UserRepository userRepository, CacheService cacheService, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.cacheService = cacheService;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -74,31 +78,41 @@ public class UserServcieImpl implements UserService {
 
     @Override
     public User save(User user) {
-        return userRepository.save(user);
+        if (user.getId() == null) {
+            user.setPassword(MD5Util.getMD5Code(user.getPassword()));
+            return userRepository.save(user);
+        } else {
+            User user1 = userRepository.findById(user.getId()).get();
+            BeanUtils.copyProperties(user, user1);
+            user1.setPassword(MD5Util.getMD5Code(user1.getPassword()));
+            return userRepository.save(user1);
+        }
+
     }
 
+
     @Override
-    public User delUser(Integer id) {
+    public User delUser(Long id) {
         User user = userRepository.findById(id).get();
         user.setIsDel((byte) 0);
         return userRepository.save(user);
     }
 
     @Override
-    public User getUser(Integer id) {
+    public User getUser(Long id) {
         return userRepository.findById(id).get();
     }
 
     @Override
-    public Page<User> getUsers(Integer pageNo, Integer pageSize, String condition, Integer roleId) {
-        Pageable page = PageRequest.of(pageNo, pageSize);
+    public Page<User> getUsers(Integer pageNo, Integer pageSize, String condition, Long roleId) {
+        Pageable page = PageRequest.of(pageNo - 1, pageSize);
         Specification<User> specification = new Specification<User>() {
             @Override
             public Predicate toPredicate(Root<User> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
                 Path<String> username = root.get("username");
                 Path<String> nickname = root.get("nickname");
                 Path<String> no = root.get("no");
-                Path<Integer> roleId1 = root.get("roleId");
+                Path<Role> role = root.get("role");
                 Predicate p4 = null;
                 Predicate p5 = null;
                 List<Predicate> lstPredicates = Lists.newArrayList();
@@ -108,8 +122,8 @@ public class UserServcieImpl implements UserService {
                     Predicate p3 = cb.like(no, "%" + condition + "%");
                     p5 = cb.or(p1, p2, p3);
                 }
-                if (roleId1 != null) {
-                    p4 = cb.equal(roleId1, roleId);
+                if (roleId != null) {
+                    p4 = cb.equal(role, roleRepository.findById(roleId).get());
                 }
                 if (p4 != null && p5 != null) {
                     return cb.and(p4, p5);

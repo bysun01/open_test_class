@@ -30,13 +30,10 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         //拦截器
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
-        // 配置不会被拦截的链接 顺序判断
-        filterChainDefinitionMap.put("/edu/base/common/*", "anon");
         //用户退出
-        filterChainDefinitionMap.put("/sysUser/logout", "logout");
-        filterChainDefinitionMap.put("/console/**", "anon");
         filterChainDefinitionMap.put("/upload/**", "anon");
-        filterChainDefinitionMap.put("/version/**", "anon");
+        filterChainDefinitionMap.put("/console/**", "anon");
+        filterChainDefinitionMap.put("/favicon.ico", "anon");
         // 添加自己的过滤器并且取名为jwt
         Map<String, Filter> filterMap = new HashMap<String, Filter>(1);
         filterMap.put("jwt", new JwtAuthFilter());

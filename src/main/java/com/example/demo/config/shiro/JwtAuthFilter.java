@@ -38,7 +38,7 @@ public class JwtAuthFilter extends BasicHttpAuthenticationFilter {
     protected boolean isLoginAttempt(ServletRequest request, ServletResponse response) {
         HttpServletRequest req = (HttpServletRequest) request;
         String token = ((HttpServletRequest) request).getHeader("x-token");
-        return StringUtils.isNoneBlank(token);
+        return StringUtils.isNotBlank(token);
     }
 
     @Override

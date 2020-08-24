@@ -10,12 +10,6 @@ import org.springframework.data.jpa.repository.Query;
 /**
  * @author ares
  */
-public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
-    @Query(value = "select * from t_user where if(:condition != '', " +
-            "(username like %:condition% or nickname like %:condition% or no like %:condition%), 1= 1 )" +
-            "if(:roleId != '', role_id = :roleId, 1 = 1)",
-            nativeQuery = true,
-            countQuery = "select count(1) from t_user")
-    Page<User> findUsers(String condition, Integer roleId, Pageable page);
 }
