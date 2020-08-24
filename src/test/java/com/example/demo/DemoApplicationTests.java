@@ -86,7 +86,6 @@ public class DemoApplicationTests {
         user.setNo("1");
         user.setPhone("18202559941");
         user.setRole(role);
-        user.setId(66L);
         userService.save(user);
     }
 

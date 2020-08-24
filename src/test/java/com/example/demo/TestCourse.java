@@ -29,15 +29,16 @@ public class TestCourse {
 
     @Test
     public void saveCourse() {
-        User user = userService.getUser(66L);
+        User user = userService.getUser(2L);
         Course course = new Course();
-        course.setCourseName("语文课");
+        course.setCourseName("数学课");
         course.setTeacher(user);
-        course.setCreateBy(66L);
-        course.setUpdateBy(66L);
+        course.setCreateBy(2L);
+        course.setUpdateBy(2L);
         course.setCreateTime(new Date());
         course.setUpdateTime(new Date());
         course.setIsDel((byte) 1);
+        course.setId(2L);
         Course course1 = courseService.saveCourse(course);
         System.out.println(JSONObject.toJSONString(course1));
     }

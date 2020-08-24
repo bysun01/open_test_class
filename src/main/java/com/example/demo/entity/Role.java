@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -37,9 +38,11 @@ public class Role {
     private Long updateBy;
 
     @Column(name = "create_time")
+    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss")
     private Date createTime;
 
     @Column(name = "update_time")
+    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss")
     private Date updateTime;
 
     @Column(name = "is_del")

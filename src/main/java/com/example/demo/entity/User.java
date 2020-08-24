@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -49,7 +50,8 @@ public class User {
     @JoinColumn(name = "role_id")
     private Role role;
 
-    @ManyToMany(cascade = CascadeType.REFRESH, mappedBy = "students")
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH, mappedBy = "students")
     private Set<Course> courses;
 
     @JsonIgnore
@@ -63,11 +65,13 @@ public class User {
     private Long updateBy;
 
     @Column(name = "create_time")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss")
     private Date createTime;
 
     @Column(name = "update_time")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss")
     private Date updateTime;
 
     @Column(name = "is_del")
