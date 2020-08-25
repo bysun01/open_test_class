@@ -27,6 +27,12 @@ public class Course {
     @Column(name = "course_name", length = 50)
     private String courseName;
 
+    @Column(name = "room_no")
+    private String roomNo;
+
+    @Column(name = "desc")
+    private String desc;
+
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
     @JoinTable(name = "t_user_course", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
@@ -52,8 +58,8 @@ public class Course {
     @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date updateTime;
 
-    @Column(name = "is_del")
-    private byte isDel;
+    @Column(name = "is_del", length = 1)
+    private Integer isDel;
 
     public void addUser(User user) {
         this.students.add(user);

@@ -4,6 +4,7 @@ import com.example.demo.common.ApiResponse;
 import com.example.demo.common.BizEnum;
 import com.example.demo.entity.User;
 import com.example.demo.exception.BizException;
+import com.example.demo.query.LoginQuery;
 import com.example.demo.service.UserService;
 import com.example.demo.vo.UserVo;
 import org.apache.commons.lang3.StringUtils;
@@ -26,26 +27,25 @@ public class UserController {
     }
 
     @PostMapping("login")
-    public ApiResponse login(String username, String password) {
-        if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+    public ApiResponse login(@RequestBody LoginQuery loginQuery) {
+        if (StringUtils.isBlank(loginQuery.getUsername()) || StringUtils.isBlank(loginQuery.getPassword())) {
             throw new BizException(BizEnum.INVALID_PARAM);
         }
-        return ApiResponse.ofSuccess(userService.login(username, password));
+        return ApiResponse.ofSuccess(userService.login(loginQuery.getUsername(), loginQuery.getPassword()));
     }
 
     @PostMapping("saveUser")
-    public ApiResponse addUser(UserVo userVo) {
+    public ApiResponse addUser(@RequestBody UserVo userVo) {
         if (userVo == null) {
             throw new BizException(BizEnum.INVALID_PARAM);
         }
         User user = new User();
-        BeanUtils.copyProperties(userVo, user);
-        userService.save(user);
+        userService.save(userVo);
         return ApiResponse.ofSuccess();
     }
 
     @PostMapping("delUser")
-    public ApiResponse delUser(Long userId) {
+    public ApiResponse delUser(@RequestParam Long userId) {
         if (null == userId) {
             throw new BizException(BizEnum.INVALID_PARAM);
         }
@@ -64,8 +64,8 @@ public class UserController {
     @GetMapping("/getUsers")
     public ApiResponse getUsers(@RequestParam(defaultValue = "1") Integer pageNo,
                                 @RequestParam(defaultValue = "10") Integer pageSize,
-                                @RequestParam String condition,
-                                @RequestParam Long roleId) {
+                                @RequestParam(required = false) String condition,
+                                @RequestParam(required = false) Long roleId) {
         return ApiResponse.ofSuccess(userService.getUsers(pageNo, pageSize, condition, roleId));
     }
 

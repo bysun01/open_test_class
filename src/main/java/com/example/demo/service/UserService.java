@@ -33,7 +33,7 @@ public interface UserService {
      * @param user
      * @return
      */
-    User save(User user);
+    User save(UserVo uservo);
 
     /**
      * 获取单个用户

@@ -12,8 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.*;
+import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -33,18 +36,27 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course saveCourse(Course course) {
+        String token = (String) SecurityUtils.getSubject().getPrincipal();
+        User user = (User) cacheService.getCommonCache(token);
         if (course.getId() != null) {
             Course course1 = courseRepository.findById(course.getId()).get();
             BeanUtils.copyProperties(course, course1);
             course = course1;
+        } else {
+            course.setCreateBy(user.getId());
+            course.setCreateTime(new Date());
         }
+        course.setTeacher(user);
+        course.setIsDel(1);
+        course.setUpdateTime(new Date());
+        course.setUpdateBy(user.getId());
         return courseRepository.save(course);
     }
 
     @Override
     public Course delCourse(Long courseId) {
         Course course = courseRepository.findById(courseId).get();
-        course.setIsDel((byte) 1);
+        course.setIsDel(0);
         return courseRepository.save(course);
     }
 
@@ -56,7 +68,21 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Page<Course> getCourses(String courseName, Integer pageNo, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        return courseRepository.findByCourseNameLike("%" + courseName + "%", pageable);
+        Specification<Course> courseSpecification = new Specification<Course>(){
+
+            @Override
+            public Predicate toPredicate(Root<Course> root, CriteriaQuery<?> cr, CriteriaBuilder cb) {
+                Path<String> cn = root.get("courseName");
+                Path<Object> isDel = root.get("isDel");
+                Predicate equal = cb.equal(isDel, 1);
+                if (courseName != null) {
+                    Predicate like = cb.like(cn, "%" + courseName + "%");
+                    cb.and(like, equal);
+                }
+                return equal;
+            }
+        };
+        return courseRepository.findAll(courseSpecification, pageable);
     }
 
     @Override

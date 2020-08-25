@@ -12,4 +12,6 @@ import lombok.Setter;
 public class UserVo extends User {
 
     private String token;
+
+    private Long roleId;
 }

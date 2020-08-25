@@ -7,8 +7,10 @@ import com.example.demo.repository.RoleRepository;
 import com.example.demo.service.UserService;
 import com.example.demo.utils.IdGen;
 import com.example.demo.utils.MD5Util;
+import com.example.demo.vo.UserVo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -32,22 +34,23 @@ public class DemoApplicationTests {
 
     @Test
     public void contextLoads() {
-        Role role = roleRepository.findById(1L).get();
         User user = new User();
         user.setUsername("Admin");
         user.setPassword(MD5Util.getMD5Code("Admin"));
-        user.setIsDel((byte) 1);
+        user.setIsDel(1);
         user.setAge(11);
         user.setCreateBy(1L);
         user.setUpdateBy(1L);
         user.setCreateTime(new Date());
         user.setCreateTime(new Date());
-        user.setGender((byte) 1);
+        user.setGender(1);
         user.setNickname("admin");
         user.setNo("1");
         user.setPhone("18202559941");
-        user.setRole(role);
-        userService.save(user);
+        UserVo userVo = new UserVo();
+        BeanUtils.copyProperties(user, userVo);
+        userVo.setRoleId(2L);
+        userService.save(userVo);
     }
 
     @Test
@@ -75,18 +78,20 @@ public class DemoApplicationTests {
         User user = new User();
         user.setUsername("tea1");
         user.setPassword(MD5Util.getMD5Code("tea1"));
-        user.setIsDel((byte) 1);
+        user.setIsDel(1);
         user.setAge(11);
         user.setCreateBy(1L);
         user.setUpdateBy(1L);
         user.setCreateTime(new Date());
         user.setCreateTime(new Date());
-        user.setGender((byte) 1);
+        user.setGender(1);
         user.setNickname("tea1");
         user.setNo("1");
         user.setPhone("18202559941");
-        user.setRole(role);
-        userService.save(user);
+        UserVo userVo = new UserVo();
+        BeanUtils.copyProperties(user, userVo);
+        userVo.setRoleId(2L);
+        userService.save(userVo);
     }
 
 }

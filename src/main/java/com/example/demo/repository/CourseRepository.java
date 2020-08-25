@@ -10,12 +10,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @author ares
  */
 public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecificationExecutor<Course> {
-    /**
-     * 根据course名模糊搜索
-     *
-     * @param courseName
-     * @param pageable
-     * @return
-     */
-    Page<Course> findByCourseNameLike(String courseName, Pageable pageable);
 }

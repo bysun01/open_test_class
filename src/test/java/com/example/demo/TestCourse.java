@@ -37,7 +37,7 @@ public class TestCourse {
         course.setUpdateBy(2L);
         course.setCreateTime(new Date());
         course.setUpdateTime(new Date());
-        course.setIsDel((byte) 1);
+        course.setIsDel(1);
         course.setId(2L);
         Course course1 = courseService.saveCourse(course);
         System.out.println(JSONObject.toJSONString(course1));

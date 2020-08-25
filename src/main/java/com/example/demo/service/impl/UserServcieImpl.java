@@ -25,6 +25,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.*;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +54,7 @@ public class UserServcieImpl implements UserService {
         user.setUsername(username);
         Example<User> of = Example.of(user);
         user = userRepository.findOne(of).get();
-        if (user == null || MD5Util.getMD5Code(password).equals(user.getPassword())) {
+        if (user == null || !MD5Util.getMD5Code(password).equals(user.getPassword())) {
             throw new BizException(BizEnum.NAME_OR_PASSWOR_IS_ERROR);
         }
         // 获取token 放入缓存
@@ -77,24 +78,36 @@ public class UserServcieImpl implements UserService {
     }
 
     @Override
-    public User save(User user) {
+    public User save(UserVo uservo) {
+        Role role = roleRepository.findById(uservo.getRoleId()).get();
+        User user = new User();
+        BeanUtils.copyProperties(uservo, user);
         if (user.getId() == null) {
-            user.setPassword(MD5Util.getMD5Code(user.getPassword()));
+            user.setPassword(MD5Util.getMD5Code("123456"));
+            user.setRole(role);
+            user.setCreateBy(1L);
+            user.setUpdateBy(1L);
+            user.setCreateTime(new Date());
+            user.setUpdateTime(new Date());
+            user.setIsDel(1);
             return userRepository.save(user);
         } else {
             User user1 = userRepository.findById(user.getId()).get();
             BeanUtils.copyProperties(user, user1);
-            user1.setPassword(MD5Util.getMD5Code(user1.getPassword()));
+            user1.setPassword(user1.getPassword());
+            user1.setRole(role);
+            user.setUpdateTime(new Date());
+            user.setUpdateBy(1L);
             return userRepository.save(user1);
         }
 
     }
 
-
     @Override
     public User delUser(Long id) {
         User user = userRepository.findById(id).get();
-        user.setIsDel((byte) 0);
+        user.setUpdateTime(new Date());
+        user.setIsDel(0);
         return userRepository.save(user);
     }
 
@@ -113,8 +126,10 @@ public class UserServcieImpl implements UserService {
                 Path<String> nickname = root.get("nickname");
                 Path<String> no = root.get("no");
                 Path<Role> role = root.get("role");
+                Path<Integer> isDel = root.get("isDel");
                 Predicate p4 = null;
                 Predicate p5 = null;
+                Predicate equal = cb.equal(isDel, 1);
                 List<Predicate> lstPredicates = Lists.newArrayList();
                 if (StringUtils.isNotBlank(condition)) {
                     Predicate p1 = cb.like(username, "%" + condition + "%");
@@ -126,15 +141,15 @@ public class UserServcieImpl implements UserService {
                     p4 = cb.equal(role, roleRepository.findById(roleId).get());
                 }
                 if (p4 != null && p5 != null) {
-                    return cb.and(p4, p5);
+                    return cb.and(p4, p5, equal);
                 }
                 if (p4 != null && p5 == null) {
-                    return p4;
+                    return cb.and(p4, equal);
                 }
                 if (p4 == null && p5 != null) {
-                    return p5;
+                    return cb.and(p5, equal);
                 }
-                return null;
+                return equal;
             }
         };
         return userRepository.findAll(specification, page);

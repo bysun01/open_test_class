@@ -43,8 +43,8 @@ public class User {
     @Column(name = "phone")
     private String phone;
 
-    @Column(name = "gender")
-    private byte gender;
+    @Column(name = "gender", length = 1)
+    private Integer gender;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, targetEntity = Role.class)
     @JoinColumn(name = "role_id")
@@ -66,14 +66,14 @@ public class User {
 
     @Column(name = "create_time")
     @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
-    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date createTime;
 
     @Column(name = "update_time")
     @DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
-    @JsonFormat(pattern="yyyy-MM-dd hh:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date updateTime;
 
-    @Column(name = "is_del")
-    private byte isDel;
+    @Column(name = "is_del", length = 1)
+    private Integer isDel;
 }

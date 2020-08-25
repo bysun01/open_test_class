@@ -22,7 +22,7 @@ public class CourseController {
     }
 
     @PostMapping("saveCourse")
-    public ApiResponse saveCourse(Course course) {
+    public ApiResponse saveCourse(@RequestBody Course course) {
         return ApiResponse.ofSuccess(courseService.saveCourse(course));
     }
 
@@ -39,7 +39,7 @@ public class CourseController {
     @GetMapping("getCourses")
     public ApiResponse getCourses(@RequestParam(defaultValue = "1") Integer pageNo,
                                   @RequestParam(defaultValue = "10") Integer pageSize,
-                                  @RequestParam String courseName) {
+                                  @RequestParam(required = false) String courseName) {
         return ApiResponse.ofSuccess(courseService.getCourses(courseName, pageNo, pageSize));
     }
 
