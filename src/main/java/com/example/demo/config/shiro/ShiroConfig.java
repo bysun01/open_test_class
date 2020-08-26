@@ -21,7 +21,7 @@ import java.util.Map;
  * @Author: bysun
  * @Date: 2019/5/26 9:51
  */
-//@SpringBootConfiguration
+@SpringBootConfiguration
 public class ShiroConfig {
 
     @Bean("shiroFilter")
@@ -31,17 +31,24 @@ public class ShiroConfig {
         //拦截器
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
         //用户退出
-        filterChainDefinitionMap.put("/upload/**", "anon");
-        filterChainDefinitionMap.put("/console/**", "anon");
-        filterChainDefinitionMap.put("/favicon.ico", "anon");
-        filterChainDefinitionMap.put("/v1/user/login", "anon");
-        filterChainDefinitionMap.put("/static/**", "anon");
+//        filterChainDefinitionMap.put("/upload/**", "anon");
+//        filterChainDefinitionMap.put("/console/**", "anon");
+//        filterChainDefinitionMap.put("/favicon.ico", "anon");
+//        filterChainDefinitionMap.put("/v1/user/login", "anon");
+//        filterChainDefinitionMap.put("/static/**", "anon");
+//        filterChainDefinitionMap.put("/image/**", "anon");
+//        filterChainDefinitionMap.put("/css/**", "anon");
+//        filterChainDefinitionMap.put("/js/**", "anon");
+//        filterChainDefinitionMap.put("/#/", "anon");
         // 添加自己的过滤器并且取名为jwt
         Map<String, Filter> filterMap = new HashMap<String, Filter>(1);
         filterMap.put("jwt", new JwtAuthFilter());
         shiroFilterFactoryBean.setFilters(filterMap);
+        filterChainDefinitionMap.put("/v1/user/login", "anon");
+        filterChainDefinitionMap.put("/v1/**", "jwt");
+        filterChainDefinitionMap.put("/**", "anon");
         //<!-- 过滤链定义，从上向下顺序执行，一般将/**放在最为下边
-        filterChainDefinitionMap.put("/**", "jwt");
+//        filterChainDefinitionMap.put("/**", "jwt");
         //未授权界面;
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
