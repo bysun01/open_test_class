@@ -15,7 +15,6 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "t_user")
-@GenericGenerator(name = "jpa-uuid", strategy = "uuid")
 @Setter
 @Getter
 public class User {
@@ -51,12 +50,12 @@ public class User {
     private Role role;
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH, mappedBy = "students")
-    private Set<Course> courses;
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private Set<StudentCourse> studentCourses;
 
     @JsonIgnore
     @OneToMany(mappedBy = "teacher", fetch = FetchType.EAGER)
-    private Set<Course> courseList;
+    private Set<Course> courses;
 
     @Column(name = "create_by")
     private Long createBy;

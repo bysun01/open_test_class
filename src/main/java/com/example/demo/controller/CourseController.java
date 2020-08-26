@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.common.ApiResponse;
 import com.example.demo.entity.Course;
-import com.example.demo.repository.CourseRepository;
 import com.example.demo.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -43,13 +42,13 @@ public class CourseController {
         return ApiResponse.ofSuccess(courseService.getCourses(courseName, pageNo, pageSize));
     }
 
-    @GetMapping("subCourses")
+    @PostMapping("subCourses")
     public ApiResponse subCourses(@RequestParam Long courseId) {
         courseService.subCourses(courseId);
         return ApiResponse.ofSuccess();
     }
 
-    @GetMapping("abbrSubCourses")
+    @PostMapping("abbrSubCourses")
     public ApiResponse abbrSubCourses(@RequestParam Long courseId) {
         courseService.abbrSubCourses(courseId);
         return ApiResponse.ofSuccess();

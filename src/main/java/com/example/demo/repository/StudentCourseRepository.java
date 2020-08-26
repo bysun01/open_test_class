@@ -1,13 +1,12 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.Course;
+import com.example.demo.entity.StudentCourse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /**
  * @author ares
  */
-public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecificationExecutor<Course> {
-
+public interface StudentCourseRepository extends JpaRepository<StudentCourse, Long>, JpaSpecificationExecutor<StudentCourse> {
 
 }

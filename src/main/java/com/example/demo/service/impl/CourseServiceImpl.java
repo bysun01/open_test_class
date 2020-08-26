@@ -1,21 +1,23 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.entity.Course;
+import com.example.demo.entity.StudentCourse;
 import com.example.demo.entity.User;
 import com.example.demo.repository.CourseRepository;
+import com.example.demo.repository.CourseVoRepository;
+import com.example.demo.repository.StudentCourseRepository;
 import com.example.demo.service.CacheService;
 import com.example.demo.service.CourseService;
+import com.example.demo.vo.CourseVO;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.*;
 import java.util.Date;
 import java.util.Optional;
 
@@ -27,11 +29,16 @@ public class CourseServiceImpl implements CourseService {
 
     private CourseRepository courseRepository;
     private CacheService cacheService;
+    private CourseVoRepository courseVoRepository;
+    private StudentCourseRepository studentCourseRepository;
 
     @Autowired
-    public void injectBean(CourseRepository courseRepository, CacheService cacheService) {
+    public void injectBean(CourseRepository courseRepository, CacheService cacheService,
+                           CourseVoRepository courseVoRepository, StudentCourseRepository studentCourseRepository) {
         this.courseRepository = courseRepository;
         this.cacheService = cacheService;
+        this.courseVoRepository = courseVoRepository;
+        this.studentCourseRepository = studentCourseRepository;
     }
 
     @Override
@@ -66,23 +73,9 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Page<Course> getCourses(String courseName, Integer pageNo, Integer pageSize) {
+    public Page<CourseVO> getCourses(String courseName, Integer pageNo, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
-        Specification<Course> courseSpecification = new Specification<Course>(){
-
-            @Override
-            public Predicate toPredicate(Root<Course> root, CriteriaQuery<?> cr, CriteriaBuilder cb) {
-                Path<String> cn = root.get("courseName");
-                Path<Object> isDel = root.get("isDel");
-                Predicate equal = cb.equal(isDel, 1);
-                if (courseName != null) {
-                    Predicate like = cb.like(cn, "%" + courseName + "%");
-                    cb.and(like, equal);
-                }
-                return equal;
-            }
-        };
-        return courseRepository.findAll(courseSpecification, pageable);
+        return courseVoRepository.findCourseForSub(pageable);
     }
 
     @Override
@@ -90,8 +83,10 @@ public class CourseServiceImpl implements CourseService {
         String token = String.valueOf(SecurityUtils.getSubject().getPrincipal());
         User user = (User) cacheService.getCommonCache(token);
         Course course = courseRepository.findById(courseId).get();
-        course.addUser(user);
-        courseRepository.saveAndFlush(course);
+        StudentCourse studentCourse = new StudentCourse();
+        studentCourse.setCourse(course);
+        studentCourse.setUser(user);
+        studentCourseRepository.save(studentCourse);
     }
 
     @Override
@@ -99,8 +94,12 @@ public class CourseServiceImpl implements CourseService {
         String token = String.valueOf(SecurityUtils.getSubject().getPrincipal());
         User user = (User) cacheService.getCommonCache(token);
         Course course = courseRepository.findById(courseId).get();
-        course.removeUser(user);
-        courseRepository.saveAndFlush(course);
+        StudentCourse studentCourse = new StudentCourse();
+        studentCourse.setCourse(course);
+        studentCourse.setUser(user);
+        Example<StudentCourse> of = Example.of(studentCourse);
+        StudentCourse course1 = studentCourseRepository.findOne(of).get();
+        studentCourseRepository.deleteById(course1.getId());
     }
 
 

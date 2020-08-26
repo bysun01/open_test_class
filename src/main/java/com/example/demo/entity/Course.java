@@ -33,10 +33,8 @@ public class Course {
     @Column(name = "desc")
     private String desc;
 
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
-    @JoinTable(name = "t_user_course", joinColumns = @JoinColumn(name = "course_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<User> students;
+    @OneToMany(mappedBy = "course", fetch = FetchType.EAGER)
+    private Set<StudentCourse> studentCourse;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, targetEntity = User.class)
     @JoinColumn(name = "teacher_id")
@@ -61,11 +59,11 @@ public class Course {
     @Column(name = "is_del", length = 1)
     private Integer isDel;
 
-    public void addUser(User user) {
-        this.students.add(user);
-    }
-
-    public void removeUser(User user) {
-        this.students.remove(user);
-    }
+//    public void addUser(User user) {
+//        this.students.add(user);
+//    }
+//
+//    public void removeUser(User user) {
+//        this.students.remove(user);
+//    }
 }

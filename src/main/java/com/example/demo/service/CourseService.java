@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Course;
+import com.example.demo.vo.CourseVO;
 import org.springframework.data.domain.Page;
 
 /**
@@ -37,7 +38,7 @@ public interface CourseService {
      *
      * @return
      */
-    Page<Course> getCourses(String courseName, Integer pageNo, Integer pageSize);
+    Page<CourseVO> getCourses(String courseName, Integer pageNo, Integer pageSize);
 
 
     /**

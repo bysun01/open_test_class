@@ -21,7 +21,7 @@ import java.util.Map;
  * @Author: bysun
  * @Date: 2019/5/26 9:51
  */
-@SpringBootConfiguration
+//@SpringBootConfiguration
 public class ShiroConfig {
 
     @Bean("shiroFilter")
@@ -35,6 +35,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/console/**", "anon");
         filterChainDefinitionMap.put("/favicon.ico", "anon");
         filterChainDefinitionMap.put("/v1/user/login", "anon");
+        filterChainDefinitionMap.put("/static/**", "anon");
         // 添加自己的过滤器并且取名为jwt
         Map<String, Filter> filterMap = new HashMap<String, Filter>(1);
         filterMap.put("jwt", new JwtAuthFilter());
