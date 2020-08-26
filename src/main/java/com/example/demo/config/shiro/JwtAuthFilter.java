@@ -1,69 +1,80 @@
-package com.example.demo.config.shiro;//package com.edu.core.config.shiro;
+package com.example.demo.config.shiro;
 
+import com.alibaba.fastjson.JSON;
+import com.example.demo.common.ApiResponse;
+import com.example.demo.common.BizEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
-import org.springframework.http.HttpStatus;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author ares
  */
 @Slf4j
-public class JwtAuthFilter extends BasicHttpAuthenticationFilter {
+public class JwtAuthFilter extends AuthenticatingFilter {
 
     private final String TOKEN = "x-token";
 
     @Override
-    protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
-        if (isLoginAttempt(request, response)) {
-            try {
-                executeLogin(request, response);
-            } catch (Exception e) {
-                throw new AuthenticationException("token");
-            }
-        } else {
-            throw new AuthenticationException("token");
+    protected AuthenticationToken createToken(ServletRequest servletRequest, ServletResponse servletResponse) throws Exception {
+        String token = getRequestToken((HttpServletRequest) servletRequest);
+        if (StringUtils.isBlank(token)) {
+            return null;
         }
-        return true;
+        return new JwtToken(token);
+    }
+
+    private String getRequestToken(HttpServletRequest httpRequest) {
+        return httpRequest.getHeader(TOKEN);
+    }
+
+
+    @Override
+    protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
+        if (((HttpServletRequest) request).getMethod().equals(RequestMethod.OPTIONS.name())) {
+            return true;
+        }
+        return false;
     }
 
     @Override
-    protected boolean isLoginAttempt(ServletRequest request, ServletResponse response) {
-        HttpServletRequest req = (HttpServletRequest) request;
-        String token = ((HttpServletRequest) request).getHeader("x-token");
-        return StringUtils.isNotBlank(token);
-    }
-
-    @Override
-    protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
-        HttpServletRequest req = (HttpServletRequest) request;
-        String token = ((HttpServletRequest) request).getHeader("x-token");
-        JwtToken jwtToken = new JwtToken(token);
-        // 提交给realm进行登入，如果错误他会抛出异常并被捕获
-        getSubject(request, response).login(jwtToken);
-        // 如果没有抛出异常则代表登入成功，返回true
-        return true;
-    }
-
-    @Override
-    protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-        httpServletResponse.setHeader("Access-control-Allow-Origin", httpServletRequest.getHeader("Origin"));
-        httpServletResponse.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
-        httpServletResponse.setHeader("Access-Control-Allow-Headers", httpServletRequest.getHeader("Access-Control-Request-Headers"));
-        // 跨域时会首先发送一个option请求，这里我们给option请求直接返回正常状态
-        if (httpServletRequest.getMethod().equals(RequestMethod.OPTIONS.name())) {
-            httpServletResponse.setStatus(HttpStatus.OK.value());
+    protected boolean onAccessDenied(ServletRequest servletRequest, ServletResponse servletResponse) throws Exception {
+        String token = getRequestToken((HttpServletRequest) servletRequest);
+        if (StringUtils.isBlank(token)) {
+            HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
+            httpResponse.setContentType("application/json;charset=utf-8");
+            httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+            httpResponse.setHeader("Access-Control-Allow-Origin", "");
+            String json = JSON.toJSONString(ApiResponse.ofMessage(BizEnum.TOKEN_FAIL, null));
+            httpResponse.getWriter().print(json);
             return false;
         }
-        return super.preHandle(request, response);
+        return executeLogin(servletRequest, servletResponse);
     }
+
+    @Override
+    protected boolean onLoginFailure(AuthenticationToken token, AuthenticationException e, ServletRequest request, ServletResponse response) {
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        httpResponse.setContentType("application/json;charset=utf-8");
+        httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+        httpResponse.setHeader("Access-Control-Allow-Origin", "");
+        try {
+            //处理登录失败的异常
+            Throwable throwable = e.getCause() == null ? e : e.getCause();
+            String json = JSON.toJSONString(ApiResponse.ofMessage(BizEnum.TOKEN_FAIL, null));
+            httpResponse.getWriter().print(json);
+        } catch (IOException e1) {
+        }
+        return false;
+    }
+
 }
