@@ -33,7 +33,9 @@ public enum BizEnum {
     MOBILE_ERROR(10013, "请输入正确的手机号"),
     TIMEFORMAT(10014, "时间格式不正确"),
     EMAIl_FAIL(10015, "email发送信息失败"),
-    EMAIL_CHECK_FAIL(10016, "email验证码验证失败");
+    EMAIL_CHECK_FAIL(10016, "email验证码验证失败"),
+    USERNAME_EXIST(10017, "用户名已存在")
+    ;
 
 
     private Integer code;

@@ -5,6 +5,7 @@ import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.service.UserService;
+import com.example.demo.utils.CopyUtil;
 import com.example.demo.utils.IdGen;
 import com.example.demo.utils.MD5Util;
 import com.example.demo.vo.UserVo;
@@ -48,7 +49,7 @@ public class DemoApplicationTests {
         user.setNo("1");
         user.setPhone("18202559941");
         UserVo userVo = new UserVo();
-        BeanUtils.copyProperties(user, userVo);
+        CopyUtil.copyProperties(user, userVo);
         userVo.setRoleId(2L);
         userService.save(userVo);
     }
@@ -89,7 +90,7 @@ public class DemoApplicationTests {
         user.setNo("1");
         user.setPhone("18202559941");
         UserVo userVo = new UserVo();
-        BeanUtils.copyProperties(user, userVo);
+        CopyUtil.copyProperties(user, userVo);
         userVo.setRoleId(2L);
         userService.save(userVo);
     }

@@ -8,6 +8,7 @@ import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.CacheService;
 import com.example.demo.service.UserService;
+import com.example.demo.utils.CopyUtil;
 import com.example.demo.utils.JwtHelper;
 import com.example.demo.utils.MD5Util;
 import com.example.demo.vo.UserVo;
@@ -52,6 +53,7 @@ public class UserServcieImpl implements UserService {
         // 校验账号密码
         User user = new User();
         user.setUsername(username);
+        user.setIsDel(1);
         Example<User> of = Example.of(user);
         user = userRepository.findOne(of).get();
         if (user == null || !MD5Util.getMD5Code(password).equals(user.getPassword())) {
@@ -63,7 +65,7 @@ public class UserServcieImpl implements UserService {
         String token = JwtHelper.genToken(map);
         cacheService.setCommonCache(token, user);
         UserVo userVo = new UserVo();
-        BeanUtils.copyProperties(user, userVo);
+        CopyUtil.copyProperties(user, userVo);
         userVo.setToken(token);
         return userVo;
     }
@@ -81,9 +83,17 @@ public class UserServcieImpl implements UserService {
     public User save(UserVo uservo) {
         Role role = roleRepository.findById(uservo.getRoleId()).get();
         User user = new User();
-        BeanUtils.copyProperties(uservo, user);
+        CopyUtil.copyProperties(uservo, user);
         if (user.getId() == null) {
-            user.setPassword(MD5Util.getMD5Code("123456"));
+            User user1 = new User();
+            user1.setUsername(user.getUsername());
+            user1.setIsDel(1);
+            Example<User> of = Example.of(user1);
+            List<User> all = userRepository.findAll(of);
+            if (all.size() > 0) {
+                throw new BizException(BizEnum.USERNAME_EXIST);
+            }
+            user.setPassword(MD5Util.getMD5Code(user.getPassword()));
             user.setRole(role);
             user.setCreateBy(1L);
             user.setUpdateBy(1L);
@@ -92,9 +102,11 @@ public class UserServcieImpl implements UserService {
             user.setIsDel(1);
             return userRepository.save(user);
         } else {
+            if (StringUtils.isNotBlank(user.getPassword())) {
+                user.setPassword(MD5Util.getMD5Code(user.getPassword()));
+            }
             User user1 = userRepository.findById(user.getId()).get();
-            BeanUtils.copyProperties(user, user1);
-            user1.setPassword(user1.getPassword());
+            CopyUtil.copyProperties(user, user1);
             user1.setRole(role);
             user.setUpdateTime(new Date());
             user.setUpdateBy(1L);

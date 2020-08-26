@@ -8,6 +8,7 @@ import com.example.demo.repository.CourseVoRepository;
 import com.example.demo.repository.StudentCourseRepository;
 import com.example.demo.service.CacheService;
 import com.example.demo.service.CourseService;
+import com.example.demo.utils.CopyUtil;
 import com.example.demo.vo.CourseVO;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.BeanUtils;
@@ -47,7 +48,7 @@ public class CourseServiceImpl implements CourseService {
         User user = (User) cacheService.getCommonCache(token);
         if (course.getId() != null) {
             Course course1 = courseRepository.findById(course.getId()).get();
-            BeanUtils.copyProperties(course, course1);
+            CopyUtil.copyProperties(course, course1);
             course = course1;
         } else {
             course.setCreateBy(user.getId());

@@ -18,6 +18,5 @@ public class CourseVO {
     private String roomNo;
     private String desc;
     private Integer subNum;
-//    private Integer isSub;
     private String userIds;
 }
